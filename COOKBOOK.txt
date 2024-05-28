@@ -1,0 +1,153 @@
+1. Analyze Command (irisctl analyze)
+
+The analyze command does a high-level analysis of measurements by
+checking the following for each measurement:
+
+    1. Duration (from creation to start to end).
+       Daily Zeph measurements and weekly exhaustive measurements are
+       each expected to finish in less than 5 and 24 hours, respectively.
+    2. State (finished, ongoing, canceled, agent_failure).
+    3. The number of agents it was requested to run on.
+
+The scope of analysis can be adjusted to a particular set of of
+measurements with command line flags and arguments.  Below is the
+general invocation:
+
+    analyze [--all-users] [--before <yyyy-mm-dd>] [--after <yyyy-mm-dd>] \
+            [--state <state>]... [--tag <tag>]... [--tags-and] \
+            [--agent <agent-hostname>]...
+
+The analyze command supports the following subcommands:
+
+    tags, states, hours, tables
+
+As mentioned earlier, if a subcommand is not specified, analyze
+does a high-level analysis of the measurements.
+
+1.1. Measurements
+
+# Analyze all my measurements.
+$ irisctl analyze
+
+# Analyze all my measurements that finished.
+$ irisctl analyze --state finished
+
+# Analyze all measurements of all users that finished.
+# Since it takes about 3 minutes to fetch the metadata of all
+# measurements, it's a good idea to save the measurements metadata
+# file and use it for future invocations.
+$ irisctl analyze --all-users --state finished
+saving in /tmp/irisctl-meas-all-520813797
+...
+$ mv /tmp/irisctl-meas-all-520813797 allmd
+
+# Analyze all daily zeph measurements that finished using the
+# specified measurements metadata file.
+$ irisctl analyze --tag zeph-gcp-daily.json --state finished allmd
+
+# Analyze weekly exahustive measurements that finished since the
+# beginning of the year using specified measurements metadata file and
+# be verbose.
+$ irisctl analyze --tag collection:exhaustive --state finished --after 2024-01-01 allmd --verbose
+
+1.2. Tags
+
+# Show usage count of each individual tag and also usage count of measurement tags.
+$ irisctl analyze tags tags allmd
+
+# Same as above but only for measurements after the specified date.
+$ irisctl analyze --after 2024-01-01 tags allmd
+
+1.3. Tables
+
+# Analyze tables of all my measurements.
+./irisctl analyze tables
+
+# Analyze tables of all my measurements that finished and were tagged as test.
+./irisctl analyze --state finished --tag test tables
+
+# Analyze tables of all users' measurements (i.e., not only mine).
+# This will be very fast and will produce more than 53K lines of
+# output but measurement tags and state cannot be shown.
+./irisctl analyze --all-users tables
+
+# Analyze tables of daily zeph measurements.
+./irisctl analyze --all-users --tag zeph-gcp-daily.json tables
+
+# Analyze tables of daily zeph measurements in the specified period
+# and use the specified measurement metadata file.
+./irisctl analyze --all-users --tag zeph-gcp-daily.json --after 2023-12-01 tables allmd
+
+# Analyze tables of daily zeph measurements that did not finish
+# (either due to agent failure or getting canceled).
+./irisctl analyze --all-users --tag zeph-gcp-daily.json --state agent_failure --state canceled tables allmd
+
+# Analyze tables of daily zeph measurements that finished on the
+# specified agents.
+./irisctl analyze --all-users --tag zeph-gcp-daily.json --state finished --agent iris-us-east4 --agent iris-asia-northeast1 tables allmd
+
+# Analyze tables of the specified measurement UUID.
+./irisctl analyze tables --meas-uuid 9f2dbe3a-ac56-4ff3-8ad3-303ad492b7e7 allmd
+
+2. ClickHouse Queries
+
+2.1.  Describe a table
+DESCRIBE TABLE iris.results__c3685f87_3e26_432e_aea1_4a875b6f79d9__ddd8541d_b4f5_42ce_b163_e3e9bfcd0a47
+
+2.2. Print 10 oldest probes tables
+SELECT
+    name,
+    min(metadata_modification_time) AS oldest
+FROM
+    system.tables
+WHERE
+    name LIKE 'probes%'
+GROUP BY
+    name
+ORDER BY
+    oldest ASC
+LIMIT 10
+
+2.3. Print all links, prefixes, probes, and results tables in chronological order
+SELECT
+    name,
+    metadata_modification_time,
+    total_rows,
+    total_bytes
+FROM
+    system.tables
+WHERE
+    name LIKE 'links__%' OR
+    name LIKE 'prefixes__%' OR
+    name LIKE 'probes__%' OR
+    name LIKE 'results__%'
+GROUP BY
+    name,
+    metadata_modification_time,
+    total_rows,
+    total_bytes
+ORDER BY
+    metadata_modification_time
+
+2.4. Print the count of rows in a prefixes table that match specific destinations and sort the output
+SELECT
+    *
+FROM
+    prefixes__c3685f87_3e26_432e_aea1_4a875b6f79d9__ddd8541d_b4f5_42ce_b163_e3e9bfcd0a47
+WHERE
+    (probe_dst_prefix = toIPv6('31.210.2.0')) OR (probe_dst_prefix = toIPv6('31.210.4.0')) OR (probe_dst_prefix = toIPv6('31.210.5.0')) OR (probe_dst_prefix = toIPv6('31.210.7.0'))
+
+2.6. Print the number of rows in a probes table that match specific destinations
+SELECT
+    COUNT(*) AS total_rows,
+    probe_dst_prefix
+FROM
+    results__c3685f87_3e26_432e_aea1_4a875b6f79d9__ddd8541d_b4f5_42ce_b163_e3e9bfcd0a47
+WHERE
+    (probe_dst_prefix = toIPv6('31.210.2.0')) OR (probe_dst_prefix = toIPv6('31.210.4.0')) OR (probe_dst_prefix = toIPv6('31.210.5.0')) OR (probe_dst_prefix = toIPv6('31.210.7.0'))
+GROUP BY
+    probe_dst_prefix
+ORDER BY
+    total_rows DESC,
+    probe_dst_prefix DESC
+LIMIT 10
