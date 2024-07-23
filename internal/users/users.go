@@ -114,7 +114,7 @@ func UsersCmd() *cobra.Command {
 //	of irisctl.
 func GetUserPass() (string, error) {
 	if meServices.ClickHouse.Username == "" {
-		uuid := "df4e17ff-2b8d-469a-b988-02c788927e01"
+		uuid := "a75482d1-8c5c-4d56-845e-fc3861047992" // zeph-gcp-daily.json
 		url := fmt.Sprintf("%s/me/services?measurement_uuid=%v", common.UsersAPI, uuid)
 		jsonData, err := common.Curl(auth.GetAccessToken(), false, "GET", url)
 		if err != nil {
