@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/dioptra-io/irisctl/internal/auth"
 	"github.com/dioptra-io/irisctl/internal/common"
@@ -108,10 +109,12 @@ func UsersCmd() *cobra.Command {
 // users/me/services of Iris API.
 //
 // XXX For now, this function uses a hard-coded measurement UUID
-//
-//	but going forward it should either accept a measurement UUID
-//	or find a measurement UUID of the user running this instance
-//	of irisctl.
+//     but going forward it should either accept a measurement UUID
+//     or find a measurement UUID of the user running this instance
+//     of irisctl.
+// XXX We wait one second before returning because we have noticed that
+//     sometimes Iris hasn't fully read the user file that includes the
+//     newly created username and password.
 func GetUserPass() (string, error) {
 	if meServices.ClickHouse.Username == "" {
 		uuid := "a75482d1-8c5c-4d56-845e-fc3861047992" // zeph-gcp-daily.json
@@ -124,6 +127,7 @@ func GetUserPass() (string, error) {
 			return "", err
 		}
 	}
+	time.Sleep(1 * time.Second)
 	return meServices.ClickHouse.Username + ":" + meServices.ClickHouse.Password, nil
 }
 
