@@ -1,3 +1,23 @@
+IRIS COOKBOOK
+
+1. Analyze Command (irisctl analyze)
+   1.1. Measurements
+   1.2. Tags
+   1.3. Tables
+2. ClickHouse Queries
+   2.1. Describe a table
+   2.2. Print 10 oldest probes tables
+   2.3. Print all links, prefixes, probes, and results tables in chronological order
+   2.4. Print the count of rows in a prefixes table that match specific destinations and sort the output
+   2.5. Print the number of rows in a probes table that match specific destinations
+   2.6. Count the number of distinct prefixes in the probes table (directives)
+   2.7. List all the distinct prefixes in the probes table
+   2.8. Count the number of distinct links in the links table
+   2.9. Select the distinct links in the links table
+   2.10. Count the number of discovered nodes in the results table
+   2.11. Select distinct nodes in the results tables
+   2.12. For each round, select the minimum capture_timestamp, the
+
 1. Analyze Command (irisctl analyze)
 
 The analyze command does a high-level analysis of measurements by
@@ -91,10 +111,12 @@ $ irisctl analyze --after 2024-01-01 tags allmd
 
 2. ClickHouse Queries
 
-2.1.  Describe a table
+2.1. Describe a table
+
 DESCRIBE TABLE iris.results__c3685f87_3e26_432e_aea1_4a875b6f79d9__ddd8541d_b4f5_42ce_b163_e3e9bfcd0a47
 
 2.2. Print 10 oldest probes tables
+
 SELECT
     name,
     min(metadata_modification_time) AS oldest
@@ -108,7 +130,9 @@ ORDER BY
     oldest ASC
 LIMIT 10
 
-2.3. Print all links, prefixes, probes, and results tables in chronological order
+2.3. Print all links, prefixes, probes, and results tables in
+     chronological order
+
 SELECT
     name,
     metadata_modification_time,
@@ -129,7 +153,9 @@ GROUP BY
 ORDER BY
     metadata_modification_time
 
-2.4. Print the count of rows in a prefixes table that match specific destinations and sort the output
+2.4. Print the count of rows in a prefixes table that match specific
+     destinations and sort the output
+
 SELECT
     *
 FROM
@@ -137,17 +163,71 @@ FROM
 WHERE
     (probe_dst_prefix = toIPv6('31.210.2.0')) OR (probe_dst_prefix = toIPv6('31.210.4.0')) OR (probe_dst_prefix = toIPv6('31.210.5.0')) OR (probe_dst_prefix = toIPv6('31.210.7.0'))
 
-2.6. Print the number of rows in a probes table that match specific destinations
+2.5. Print the number of rows in a probes table that match specific
+     destinations
+
 SELECT
     COUNT(*) AS total_rows,
     probe_dst_prefix
 FROM
     results__c3685f87_3e26_432e_aea1_4a875b6f79d9__ddd8541d_b4f5_42ce_b163_e3e9bfcd0a47
 WHERE
-    (probe_dst_prefix = toIPv6('31.210.2.0')) OR (probe_dst_prefix = toIPv6('31.210.4.0')) OR (probe_dst_prefix = toIPv6('31.210.5.0')) OR (probe_dst_prefix = toIPv6('31.210.7.0'))
+    (probe_dst_prefix = toIPv6('31.210.2.0')) OR
+    (probe_dst_prefix = toIPv6('31.210.4.0')) OR
+    (probe_dst_prefix = toIPv6('31.210.5.0')) OR
+    (probe_dst_prefix = toIPv6('31.210.7.0'))
 GROUP BY
     probe_dst_prefix
 ORDER BY
     total_rows DESC,
     probe_dst_prefix DESC
 LIMIT 10
+
+2.6. Count the number of distinct prefixes in the probes table (directives)
+
+SELECT
+count(DISTINCT probe_dst_prefix)
+FROM probes__a7dc8672_ca5f_4b60_bfe8_57a2938ab078__400a3c9b_57ed_4315_9489_917e601f3604
+
+2.7. List all the distinct prefixes in the probes table
+
+SELECT DISTINCT probe_dst_prefix
+FROM probes__a7dc8672_ca5f_4b60_bfe8_57a2938ab078__400a3c9b_57ed_4315_9489_917e601f3604
+
+2.8. Count the number of distinct links in the links table
+
+SELECT
+COUNT(DISTINCT near_addr, far_addr)
+FROM links__a7dc8672_ca5f_4b60_bfe8_57a2938ab078__400a3c9b_57ed_4315_9489_917e601f3604
+
+2.9. Select the distinct links in the links table
+
+SELECT
+DISTINCT near_addr, far_addr
+FROM links__a7dc8672_ca5f_4b60_bfe8_57a2938ab078__f39c7a18_5b00_4e57_9694_f3db8198b72a
+
+2.10. Count the number of discovered nodes in the results table
+
+SELECT
+COUNT(DISTINCT reply_src_addr)
+FROM results__a7dc8672_ca5f_4b60_bfe8_57a2938ab078__f39c7a18_5b00_4e57_9694_f3db8198b72a
+
+2.11. Select distinct nodes in the results tables
+
+SELECT
+DISTINCT reply_src_addr
+FROM results__a7dc8672_ca5f_4b60_bfe8_57a2938ab078__f39c7a18_5b00_4e57_9694_f3db8198b72a
+
+2.12. For each round, select the minimum capture_timestamp, the
+maximum, the duration of the round and the time elapsed between
+rounds
+
+SELECT
+    round
+    MIN(capture_timestamp),
+    MAX(capture_timestamp),
+    (MAX(capture_timestamp)-MIN(capture_timestamp)) AS duration,
+    MIN(capture_timestamp) - lagInFrame(MAX(capture_timestamp)) OVER(ORDER BY round) AS delta_rounds
+From results__a7dc8672_ca5f_4b60_bfe8_57a2938ab078__400a3c9b_57ed_4315_9489_917e601f3604
+GROUP BY round
+ORDER BY round
