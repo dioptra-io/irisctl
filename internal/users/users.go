@@ -282,7 +282,7 @@ func getUsers(url string, printOut bool) ([]byte, error) {
 	}
 	defer tmpFile.Close()
 	if common.RootFlagBool("no-delete") {
-		fmt.Printf("saving in %s\n", tmpFile.Name())
+		fmt.Fprintf(os.Stderr, "saving in %s\n", tmpFile.Name())
 	} else {
 		defer func(f string) { verbose("removing %s\n", f); os.Remove(f) }(tmpFile.Name())
 	}

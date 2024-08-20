@@ -421,7 +421,7 @@ func SaveOrPrint(jsonData []byte, prefix string) error {
 			return err
 		}
 		defer f.Close()
-		fmt.Printf("saving in %s\n", f.Name())
+		fmt.Fprintf(os.Stderr, "saving in %s\n", f.Name())
 		if _, err := f.Write(jsonData); err != nil {
 			return err
 		}

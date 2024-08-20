@@ -171,7 +171,7 @@ func deleteMaintenanceMeas(measUUID string) error {
 		return err
 	}
 	defer f.Close()
-	fmt.Printf("saving in %s\n", f.Name())
+	fmt.Fprintf(os.Stderr, "saving in %s\n", f.Name())
 
 	url := fmt.Sprintf("%s/measurements/%s", common.MaintenanceAPI, measUUID)
 	jsonData, err := common.Curl(auth.GetAccessToken(), false, "DELETE", url)

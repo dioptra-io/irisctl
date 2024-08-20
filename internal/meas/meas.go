@@ -229,7 +229,7 @@ func getMeasMdFile() (string, error) {
 		return "", err
 	}
 	defer f.Close()
-	fmt.Printf("saving in %s\n", f.Name())
+	fmt.Fprintf(os.Stderr, "saving in %s\n", f.Name())
 
 	limit := 200
 	defer fmt.Println()
