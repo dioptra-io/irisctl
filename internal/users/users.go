@@ -22,7 +22,7 @@ var (
 	//	users all [--verified]
 	//	users delete [--dry-run] <user-id>...
 	//	users patch <user-id> <user-details>
-	//	users services <measurement-uuid>
+	//	users services <meas-uuid>
 	cmdName       = "users"
 	subcmdNames   = []string{"me", "all", "delete", "patch", "services"}
 	fAllVerified  bool
@@ -109,12 +109,15 @@ func UsersCmd() *cobra.Command {
 // users/me/services of Iris API.
 //
 // XXX For now, this function uses a hard-coded measurement UUID
-//     but going forward it should either accept a measurement UUID
-//     or find a measurement UUID of the user running this instance
-//     of irisctl.
+//
+//	but going forward it should either accept a measurement UUID
+//	or find a measurement UUID of the user running this instance
+//	of irisctl.
+//
 // XXX We wait one second before returning because we have noticed that
-//     sometimes Iris hasn't fully read the user file that includes the
-//     newly created username and password.
+//
+//	sometimes Iris hasn't fully read the user file that includes the
+//	newly created username and password.
 func GetUserPass() (string, error) {
 	if meServices.ClickHouse.Username == "" {
 		uuid := "a75482d1-8c5c-4d56-845e-fc3861047992" // zeph-gcp-daily.json
@@ -226,11 +229,11 @@ func usersPatch(cmd *cobra.Command, args []string) {
 
 func usersServicesArgs(cmd *cobra.Command, args []string) error {
 	if format, ok := common.IsUsage(args); ok {
-		fmt.Printf(format, "<measurement-uuid>", "measurement UUID")
+		fmt.Printf(format, "<meas-uuid>", "measurement UUID")
 		return nil
 	}
 	if len(args) != 1 {
-		cliFatal("users services requires exactly one argument: <measurement-uuid>>")
+		cliFatal("users services requires exactly one argument: <meas-uuid>>")
 	}
 	if err := common.ValidateFormat(args, common.MeasurementUUID); err != nil {
 		cliFatal(err)

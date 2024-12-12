@@ -110,7 +110,34 @@ type CustomTime struct {
 
 // Agent defines an Iris agent.
 type Agent struct {
-	AgentUUID string `json:"agent_uuid"`
+	ToolParameters    ToolParameters  `json:"tool_parameters"`
+	AgentParameters   AgentParameters `json:"agent_parameters"`
+	BatchSize         interface{}     `json:"batch_size"`
+	ProbingRate       interface{}     `json:"probing_rate"`
+	TargetFile        string          `json:"target_file"`
+	AgentUUID         string          `json:"agent_uuid"`
+	ProbingStatistics map[string]struct {
+		Round struct {
+			Limit  int `json:"limit"`
+			Number int `json:"number"`
+			Offset int `json:"offset"`
+		} `json:"round"`
+		EndTime                string `json:"end_time"`
+		StartTime              string `json:"start_time"`
+		ProbesRead             int    `json:"probes_read"`
+		PacketsSent            int    `json:"packets_sent"`
+		PcapDropped            int    `json:"pcap_dropped"`
+		PcapReceived           int    `json:"pcap_received"`
+		PacketsFailed          int    `json:"packets_failed"`
+		FilteredLow_ttl        int    `json:"filtered_low_tll"`
+		PacketsReceived        int    `json:"packets_received"`
+		FilteredHigh_ttl       int    `json:"filtered_high_ttl"`
+		FilteredPrefix_excl    int    `json:"filtered_prefix_excl"`
+		PcapInterfaceDropped   int    `json:"pcap_interface_dropped"`
+		FilteredPrefixNotIncl  int    `json:"filtered_prefix_not_incl"`
+		PacketsReceivedInvalid int    `json:"packets_received_invalid"`
+	} `json:"probing_statistics"`
+	State string `json:"state"`
 }
 
 // Measurement defines an Iris measurement.
@@ -142,12 +169,12 @@ type AgentsData struct {
 }
 
 type AgentsResult struct {
-	UUID       string           `json:"uuid"`
-	State      string           `json:"state"`
-	Parameters AgentsParameters `json:"parameters"`
+	UUID       string          `json:"uuid"`
+	State      string          `json:"state"`
+	Parameters AgentParameters `json:"parameters"`
 }
 
-type AgentsParameters struct {
+type AgentParameters struct {
 	Version             string   `json:"version"`
 	Hostname            string   `json:"hostname"`
 	InternalIPv4Address string   `json:"internal_ipv4_address"`
@@ -160,6 +187,21 @@ type AgentsParameters struct {
 	MinTTL              int      `json:"min_ttl"`
 	MaxProbingRate      int      `json:"max_probing_rate"`
 	Tags                []string `json:"tags"`
+}
+
+type ToolParameters struct {
+	InitialSourcePort  int     `json:"initial_source_port"`
+	DestinationPort    int     `json:"destination_port"`
+	MaxRound           int     `json:"max_round"`
+	FailureProbability float64 `json:"failure_probability"`
+	FlowMapper         string  `json:"flow_mapper"`
+	FlowMapperKwargs   struct {
+		Seed int `json:"seed"`
+	} `json:"flow_mapper_kwargs"`
+	PrefixLenV4  int `json:"prefix_len_v4"`
+	PrefixLenV6  int `json:"prefix_len_v6"`
+	GlobalMinTTL int `json:"global_min_ttl"`
+	GlobalMaxTTL int `json:"global_max_ttl"`
 }
 
 type ClickHouse struct {

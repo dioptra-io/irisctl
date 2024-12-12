@@ -6,8 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
+	//"github.com/dioptra-io/irisctl/internal/auth"
 	"github.com/dioptra-io/irisctl/internal/common"
 	"github.com/dioptra-io/irisctl/internal/meas"
 	"github.com/spf13/cobra"
@@ -20,16 +22,20 @@ const (
 
 var (
 	// Command, its flags, subcommands, and their flags.
-	//      list [--all-users] [--before <yyyy-mm-dd>] [--after <yyyy-mm-dd>] [--state <state>]... [--tag <tag>]... [--tags-and] [--agent <agent-hostname>]...
+	//      list [--bq] [--all-users] [--before <yyyy-mm-dd>] [--after <yyyy-mm-dd>] [--state <state>]... [--tag <tag>]... [--tags-and] \
+	//		[--agent <agent-hostname>...] [<meas-md-file>]
+	//      list [--bq] --uuid <meas_uuid>...
 	cmdName       = "list"
 	subcmdNames   = []string{}
 	fListAllUsers bool
+	fListBQFormat bool
 	fListBefore   common.CustomTime
 	fListAfter    common.CustomTime
 	fListState    []string
 	fListTag      []string
 	fListTagsAnd  bool
 	fListAgents   []string
+	fListUUID     bool
 
 	// Errors.
 	ErrInvalidTableName = errors.New("invalid table name")
@@ -67,12 +73,14 @@ func ListCmd() *cobra.Command {
 		Run:       list,
 	}
 	listCmd.Flags().BoolVar(&fListAllUsers, "all-users", false, "match all measurements of all users (admin only)")
+	listCmd.Flags().BoolVar(&fListBQFormat, "bq", false, "generate output suitable for inserting into BigQuery table")
 	listCmd.Flags().Var(&fListBefore, "before", "match measurements before the specified date (exclusive)")
 	listCmd.Flags().Var(&fListAfter, "after", "match measurements after the specified date (inclusive)")
 	listCmd.Flags().StringArrayVarP(&fListState, "state", "s", []string{}, "repeatable: match measurements with the specified state (agent_failure, canceled, finished, ongoing)")
 	listCmd.Flags().StringArrayVarP(&fListTag, "tag", "t", []string{}, "repeatable: match measurements with the specified tag (also see --tags-and)")
 	listCmd.Flags().BoolVar(&fListTagsAnd, "tags-and", false, "match measurements that have all specified tags")
 	listCmd.Flags().StringArrayVarP(&fListAgents, "agent", "a", []string{}, "repeatable: match measurements that ran on the specified agent")
+	listCmd.Flags().BoolVarP(&fListUUID, "uuid", "", false, "list measurements with the specified UUIDs")
 	listCmd.SetUsageFunc(common.Usage)
 	listCmd.SetHelpFunc(common.Help)
 
@@ -84,8 +92,11 @@ func listArgs(cmd *cobra.Command, args []string) error {
 		fmt.Printf(format, "<meas-md-file>", "optional: measurements metadata file")
 		return nil
 	}
-	if len(args) > 1 {
+	if !fListUUID && len(args) > 1 {
 		cliFatal("list takes at most one argument: <meas-md-file>")
+	}
+	if fListUUID && len(args) < 1 {
+		cliFatal("list --uuid requires at least one argument: <meas-uuid>...")
 	}
 	validateFlags()
 	if fListAllUsers && len(args) > 0 {
@@ -95,16 +106,39 @@ func listArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+// XXX This function is pretty ugly and needs to be refactored.
 func list(cmd *cobra.Command, args []string) {
-	measurements, err := getMeasurements(args)
-	if err != nil {
-		fatal(err)
-	}
-	for _, measurement := range measurements {
-		if measSkip(measurement) {
-			continue
+	if fListUUID {
+		for _, arg := range args {
+			measurement, err := meas.GetMeasurementAllDetails(arg)
+			if err != nil {
+				fatal(err)
+			}
+			if fListBQFormat {
+				printMeasDetailsBQ(measurement)
+			} else {
+				printMeasDetails(measurement)
+			}
 		}
-		printMeasDetails(measurement)
+	} else {
+		measurements, err := getMeasurements(args)
+		if err != nil {
+			fatal(err)
+		}
+		for _, measurement := range measurements {
+			if measSkip(measurement) {
+				continue
+			}
+			if fListBQFormat {
+				measurement, err = meas.GetMeasurementAllDetails(measurement.UUID)
+				if err != nil {
+					fatal(err)
+				}
+				printMeasDetailsBQ(measurement)
+			} else {
+				printMeasDetails(measurement)
+			}
+		}
 	}
 }
 
@@ -155,6 +189,51 @@ func printMeasDetails(measurement common.Measurement) {
 	fmt.Printf("%s %10s  ", e.Format("06-01-02.15:04:05"), e.Sub(s).Round(time.Second))
 	fmt.Printf("%q", measurement.Tags)
 	fmt.Println()
+}
+
+func printMeasDetailsBQ(measurement common.Measurement) {
+	fmt.Printf("%s,", measurement.UUID) // uuid
+
+	s := time.Time(measurement.StartTime.Time)
+	fmt.Printf("%s, ", s.Format("06-01-02.15:04:05")) // start_time
+	e := time.Time(measurement.EndTime.Time)
+	fmt.Printf("%s, ", e.Sub(s).Round(time.Second)) // duration
+
+	a, ok := abbrState[measurement.State]
+	if !ok {
+		panic("internal error: invalid measurement state")
+	}
+	fmt.Printf("%s, ", a) // state
+
+	fmt.Printf("%d, ", len(measurement.Agents)) // agents_num
+	agents_finished := 0
+	for i := 0; i < len(measurement.Agents); i++ {
+		if measurement.Agents[i].State == "finished" {
+			agents_finished++
+		}
+	}
+	fmt.Printf("%d, ", agents_finished) // agents_finished
+	if len(measurement.Agents) > 0 {
+		fmt.Printf("%s, ", measurement.Agents[0].AgentParameters.Version) // agents_version
+	}
+
+	fmt.Printf("%s, ", measurement.Tool) // tool
+	// XXX We need to parse the probes list to determine ipv5 and ipv6 values.
+	//     This is a dirty hack for now and should be cleaned up.
+	ipv4 := false
+	if measurement.Tool == "diamond-miner" {
+		ipv4 = true
+	}
+	fmt.Printf("%v, ", ipv4) // ipv4
+	ipv6 := false
+	if measurement.Tool == "yarrp" {
+		ipv6 = true
+	}
+	fmt.Printf("%v, ", ipv6) // ipv6
+
+	fmt.Printf("false, ") // is_published
+
+	fmt.Printf("%s\n", strings.Join(measurement.Tags, " ")) // tags
 }
 
 func validateFlags() {
