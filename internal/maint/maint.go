@@ -17,7 +17,7 @@ var (
 	//      maint dq <queue-name>...
 	//      maint dq --post <queue-name> [<actor-string>]  (XXX actor-string: watch_measurement_agent)
 	//      maint dq --delete <queue-name> <redis-message-id>
-	//      maint meas delete <measurement-uuid>
+	//      maint meas delete <meas-uuid>
 	cmdName     = "maint"
 	subcmdNames = []string{"dq", "meas"}
 	fDqPost     bool
@@ -130,11 +130,11 @@ func maintDq(cmd *cobra.Command, args []string) {
 
 func maintMeasArgs(cmd *cobra.Command, args []string) error {
 	if format, ok := common.IsUsage(args); ok {
-		fmt.Printf(format, "<measurement-uuid>...", "measurement UUID")
+		fmt.Printf(format, "<meas-uuid>...", "measurement UUID")
 		return nil
 	}
 	if len(args) < 2 || args[0] != "delete" {
-		cliFatal("maint meas requires an explicit \"delete\" and at least one argument: <measurement-uuid>...")
+		cliFatal("maint meas requires an explicit \"delete\" and at least one argument: <meas-uuid>...")
 	}
 	if err := common.ValidateFormat(args[1:], common.MeasurementUUID); err != nil {
 		cliFatal(err)

@@ -409,7 +409,7 @@ func analyzeTables(cmd *cobra.Command, args []string) {
 	ta, _ := time.Parse("2006-01-02", FirstMeasurementDate)
 	tb, _ := time.Parse("2006-01-02", LastMeasurementDate)
 	if fAnalyzeAllUsers && len(args) == 0 && len(fAnalyzeTag) == 0 && len(fAnalyzeState) == 0 &&
-	   fTablesMeasUUID == "" && ta.Equal(fAnalyzeAfter.Time) && tb.Equal(fAnalyzeBefore.Time) {
+		fTablesMeasUUID == "" && ta.Equal(fAnalyzeAfter.Time) && tb.Equal(fAnalyzeBefore.Time) {
 		if err := analyzeTablesByName(); err != nil {
 			fatal(err)
 		}

@@ -15,11 +15,11 @@ import (
 var (
 	// Command, its flags, subcommands, and their flags.
 	//	meas [--state <state>] [--tag <tag>] [--all-users] [--public]
-	//	meas --uuid <measurement-uuid>...
-	//	meas --target-list <measurement-uuid> <agent-uuid>
+	//	meas --uuid <meas-uuid>...
+	//	meas --target-list <meas-uuid> <agent-uuid>
 	//	meas request <meas-file>...
-	//	meas delete <measurement-uuid>...
-	//	meas edit <measurement-uuid> <patch-file>
+	//	meas delete <meas-uuid>...
+	//	meas edit <meas-uuid> <patch-file>
 	cmdName         = "meas"
 	subcmdNames     = []string{"request", "delete", "edit"}
 	fMeasState      string
@@ -93,6 +93,18 @@ func GetMeasMdFile(allUsers bool) (string, error) {
 	return getMeasMdFile()
 }
 
+func GetMeasurementAllDetails(uuid string) (common.Measurement, error) {
+	var measurement common.Measurement
+
+	url := fmt.Sprintf("%s/%s", common.MeasurementsAPI, uuid)
+	jsonData, err := common.Curl(auth.GetAccessToken(), false, "GET", url)
+	if err != nil {
+		return measurement, err
+	}
+	err = json.Unmarshal(jsonData, &measurement)
+	return measurement, err
+}
+
 func measArgs(cmd *cobra.Command, args []string) error {
 	if _, ok := common.IsUsage(args); ok {
 		return nil
@@ -104,10 +116,10 @@ func measArgs(cmd *cobra.Command, args []string) error {
 		cliFatal("specify either --target-list or --uuid")
 	}
 	if fMeasUUID && len(args) < 1 {
-		cliFatal("meas --uuid requires at least one argument: <measurement-uuid>...")
+		cliFatal("meas --uuid requires at least one argument: <meas-uuid>...")
 	}
 	if fMeasTargetList && len(args) != 2 {
-		cliFatal("meas --target-list requires two arguments: <measurement-uuid> <agent-uuid>")
+		cliFatal("meas --target-list requires two arguments: <meas-uuid> <agent-uuid>")
 	}
 	return nil
 }
@@ -157,11 +169,11 @@ func measRequest(cmd *cobra.Command, args []string) {
 
 func measDeleteArgs(cmd *cobra.Command, args []string) error {
 	if format, ok := common.IsUsage(args); ok {
-		fmt.Printf(format, "<measurement-uuid>...", "measurement UUID")
+		fmt.Printf(format, "<meas-uuid>...", "measurement UUID")
 		return nil
 	}
 	if len(args) < 1 {
-		cliFatal("meas delete requires at least one argument: <measurement-uuid>...")
+		cliFatal("meas delete requires at least one argument: <meas-uuid>...")
 	}
 	if err := common.ValidateFormat(args, common.MeasurementUUID); err != nil {
 		cliFatal(err)
@@ -179,11 +191,11 @@ func measDelete(cmd *cobra.Command, args []string) {
 
 func measEditArgs(cmd *cobra.Command, args []string) error {
 	if format, ok := common.IsUsage(args); ok {
-		fmt.Printf(format, "<measurement-uuid> <patch-file>", "measurement UUID and details in the patch file")
+		fmt.Printf(format, "<meas-uuid> <patch-file>", "measurement UUID and details in the patch file")
 		return nil
 	}
 	if len(args) != 2 {
-		cliFatal("meas edit requires two arguments: <measurement-uuid> <patch-file>")
+		cliFatal("meas edit requires two arguments: <meas-uuid> <patch-file>")
 	}
 	if err := common.ValidateFormat(args, common.MeasurementUUID); err != nil {
 		cliFatal(err)

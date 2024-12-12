@@ -23,14 +23,14 @@ maint <subcommand>
 maint dq <queue-name>...
 maint dq --upload <queue-name> <actor-string>
 maint dq --delete <queue-name> <redis-message-id>
-maint delete <measurement-uuid>
+maint delete <meas-uuid>
 
 meas [--state <state>] [--tag <tag>] [--all] [--public]
-meas --uuid <measurement-uuid>...
-meas --target-list <measurement-uuid> <agent-uuid>
+meas --uuid <meas-uuid>...
+meas --target-list <meas-uuid> <agent-uuid>
 meas request <meas-md-file>...
-meas delete <measurement-uuid>...
-meas edit <measurement-uuid> <meas-md-file>
+meas delete <meas-uuid>...
+meas edit <meas-uuid> <meas-md-file>
 
 status (has no flags)
 
@@ -45,7 +45,7 @@ users me
 users all [--verified]
 users delete [--dry-run] <user-id>...
 users patch <user-id> <user-details>
-users services <measurement-uuid>
+users services <meas-uuid>
 
 # Naming Conventions
 
