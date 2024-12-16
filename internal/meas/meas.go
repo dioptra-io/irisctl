@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 
 	"github.com/dioptra-io/irisctl/internal/auth"
 	"github.com/dioptra-io/irisctl/internal/common"
@@ -101,8 +102,36 @@ func GetMeasurementAllDetails(uuid string) (common.Measurement, error) {
 	if err != nil {
 		return measurement, err
 	}
+
 	err = json.Unmarshal(jsonData, &measurement)
-	return measurement, err
+	if err == nil {
+		return measurement, err
+	}
+
+	pattern := "limit.*number.*offset"
+	match, _ := regexp.MatchString(pattern, err.Error())
+	if !match {
+		return measurement, err
+	}
+
+	var measurementOld common.MeasurementOld
+	err = json.Unmarshal(jsonData, &measurementOld)
+	if err != nil {
+		return measurement, err
+	}
+	measurement.Tool = measurementOld.Tool
+	measurement.Tags = measurementOld.Tags
+	measurement.UUID = measurementOld.UUID
+	measurement.UserID = measurementOld.UserID
+	measurement.CreationTime = measurementOld.CreationTime
+	measurement.StartTime = measurementOld.StartTime
+	measurement.EndTime = measurementOld.EndTime
+	measurement.State = measurementOld.State
+	for i := range measurementOld.Agents {
+		measurement.Agents[i].ToolParameters = measurementOld.Agents[i].ToolParameters
+		measurement.Agents[i].AgentParameters = measurementOld.Agents[i].AgentParameters
+	}
+	return measurement, nil
 }
 
 func measArgs(cmd *cobra.Command, args []string) error {

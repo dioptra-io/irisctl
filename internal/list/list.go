@@ -195,43 +195,43 @@ func printMeasDetailsBQ(measurement common.Measurement) {
 	fmt.Printf("%s,", measurement.UUID) // uuid
 
 	s := time.Time(measurement.StartTime.Time)
-	fmt.Printf("%s, ", s.Format("06-01-02.15:04:05")) // start_time
+	fmt.Printf("%s,", s.Format("2006-01-02 15:04:05")) // start_time
 	e := time.Time(measurement.EndTime.Time)
-	fmt.Printf("%s, ", e.Sub(s).Round(time.Second)) // duration
+	fmt.Printf("%s,", e.Sub(s).Round(time.Second)) // duration
 
 	a, ok := abbrState[measurement.State]
 	if !ok {
 		panic("internal error: invalid measurement state")
 	}
-	fmt.Printf("%s, ", a) // state
+	fmt.Printf("%s,", a) // state
 
-	fmt.Printf("%d, ", len(measurement.Agents)) // agents_num
+	fmt.Printf("%d,", len(measurement.Agents)) // agents_num
 	agents_finished := 0
 	for i := 0; i < len(measurement.Agents); i++ {
 		if measurement.Agents[i].State == "finished" {
 			agents_finished++
 		}
 	}
-	fmt.Printf("%d, ", agents_finished) // agents_finished
+	fmt.Printf("%d,", agents_finished) // agents_finished
 	if len(measurement.Agents) > 0 {
 		fmt.Printf("%s, ", measurement.Agents[0].AgentParameters.Version) // agents_version
 	}
 
-	fmt.Printf("%s, ", measurement.Tool) // tool
+	fmt.Printf("%s,", measurement.Tool) // tool
 	// XXX We need to parse the probes list to determine ipv5 and ipv6 values.
 	//     This is a dirty hack for now and should be cleaned up.
 	ipv4 := false
 	if measurement.Tool == "diamond-miner" {
 		ipv4 = true
 	}
-	fmt.Printf("%v, ", ipv4) // ipv4
+	fmt.Printf("%v,", ipv4) // ipv4
 	ipv6 := false
 	if measurement.Tool == "yarrp" {
 		ipv6 = true
 	}
-	fmt.Printf("%v, ", ipv6) // ipv6
+	fmt.Printf("%v,", ipv6) // ipv6
 
-	fmt.Printf("false, ") // is_published
+	fmt.Printf("false,") // is_published
 
 	fmt.Printf("%s\n", strings.Join(measurement.Tags, " ")) // tags
 }

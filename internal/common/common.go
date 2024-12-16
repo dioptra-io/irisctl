@@ -140,6 +140,34 @@ type Agent struct {
 	State string `json:"state"`
 }
 
+// AgentOld defines an Iris agent.
+type AgentOld struct {
+	ToolParameters    ToolParameters  `json:"tool_parameters"`
+	AgentParameters   AgentParameters `json:"agent_parameters"`
+	BatchSize         interface{}     `json:"batch_size"`
+	ProbingRate       interface{}     `json:"probing_rate"`
+	TargetFile        string          `json:"target_file"`
+	AgentUUID         string          `json:"agent_uuid"`
+	ProbingStatistics map[string]struct {
+		Round                  string `json:"round"`
+		EndTime                string `json:"end_time"`
+		StartTime              string `json:"start_time"`
+		ProbesRead             int    `json:"probes_read"`
+		PacketsSent            int    `json:"packets_sent"`
+		PcapDropped            int    `json:"pcap_dropped"`
+		PcapReceived           int    `json:"pcap_received"`
+		PacketsFailed          int    `json:"packets_failed"`
+		FilteredLow_ttl        int    `json:"filtered_low_tll"`
+		PacketsReceived        int    `json:"packets_received"`
+		FilteredHigh_ttl       int    `json:"filtered_high_ttl"`
+		FilteredPrefix_excl    int    `json:"filtered_prefix_excl"`
+		PcapInterfaceDropped   int    `json:"pcap_interface_dropped"`
+		FilteredPrefixNotIncl  int    `json:"filtered_prefix_not_incl"`
+		PacketsReceivedInvalid int    `json:"packets_received_invalid"`
+	} `json:"probing_statistics"`
+	State string `json:"state"`
+}
+
 // Measurement defines an Iris measurement.
 type Measurement struct {
 	Tool         string     `json:"tool"`
@@ -151,6 +179,19 @@ type Measurement struct {
 	EndTime      CustomTime `json:"end_time"`
 	State        string     `json:"state"`
 	Agents       []Agent    `json:"agents"`
+}
+
+// MeasurementOld defines an old Iris measurement.
+type MeasurementOld struct {
+	Tool         string     `json:"tool"`
+	Tags         []string   `json:"tags"`
+	UUID         string     `json:"uuid"`
+	UserID       string     `json:"user_id"`
+	CreationTime CustomTime `json:"creation_time"`
+	StartTime    CustomTime `json:"start_time"`
+	EndTime      CustomTime `json:"end_time"`
+	State        string     `json:"state"`
+	Agents       []AgentOld `json:"agents"`
 }
 
 // MeasurementBatch defines a batch of measurements returned by Iris API.
