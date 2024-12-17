@@ -214,7 +214,7 @@ func printMeasDetailsBQ(measurement common.Measurement) {
 	}
 	fmt.Printf("%d,", agents_finished) // agents_finished
 	if len(measurement.Agents) > 0 {
-		fmt.Printf("%s, ", measurement.Agents[0].AgentParameters.Version) // agents_version
+		fmt.Printf("%s,", measurement.Agents[0].AgentParameters.Version) // agents_version
 	}
 
 	fmt.Printf("%s,", measurement.Tool) // tool
