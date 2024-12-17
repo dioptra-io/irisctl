@@ -218,18 +218,29 @@ func printMeasDetailsBQ(measurement common.Measurement) {
 	}
 
 	fmt.Printf("%s,", measurement.Tool) // tool
-	// XXX We need to parse the probes list to determine ipv5 and ipv6 values.
+	// XXX We need to parse the target list to determine ipv4 and ipv6 values.
 	//     This is a dirty hack for now and should be cleaned up.
 	ipv4 := false
-	if measurement.Tool == "diamond-miner" {
-		ipv4 = true
-	}
-	fmt.Printf("%v,", ipv4) // ipv4
 	ipv6 := false
-	if measurement.Tool == "yarrp" {
-		ipv6 = true
+	if len(measurement.Agents) > 0 {
+		t := measurement.Agents[0].TargetFile
+		if strings.Contains(t, "zeph") || strings.Contains(t, "exhaustive") {
+			ipv4 = true
+		}
+		if strings.Contains(t, "ipv6") {
+			ipv6 = true
+		}
 	}
-	fmt.Printf("%v,", ipv6) // ipv6
+	if ipv4 {
+		fmt.Printf("%v,", ipv4) // ipv4
+	} else {
+		fmt.Printf(",")
+	}
+	if ipv6 {
+		fmt.Printf("%v,", ipv6) // ipv6
+	} else {
+		fmt.Printf(",")
+	}
 
 	fmt.Printf("false,") // is_published
 
