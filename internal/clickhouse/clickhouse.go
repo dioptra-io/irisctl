@@ -11,18 +11,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	CHPROXYURL = "https://chproxy.iris.dioptra.io"
-	CHPARAMS   = "enable_http_compression=false&default_format=JSONEachRow&output_format_json_quote_64bit_integer"
-)
-
 var (
 	// Command, its flags, subcommands, and their flags.
 	//      clickhouse --query <query-string>
 	//      clickhouse <query-file>
-	cmdName          = "clickhouse"
-	subcmdNames      = []string{}
-	fClickHouseQuery string
+	cmdName           = "clickhouse"
+	subcmdNames       = []string{}
+	fClickHouseQuery  string
+	fClickhouseURL    string
+	fClickhouseParams string
 
 	// Test code changes Fatal to Panic so a fatal error won't exit
 	// the process and can be recovered.
@@ -42,6 +39,8 @@ func ClickHouseCmd() *cobra.Command {
 		Run:       clickhouse,
 	}
 	clickhouseCmd.Flags().StringVar(&fClickHouseQuery, "query", "", "clickhouse query string")
+	clickhouseCmd.Flags().StringVar(&fClickhouseURL, "clickhouse-proxy-url", "https://chproxy.iris.dioptra.io", "proxy url of the clickhouse server")
+	clickhouseCmd.Flags().StringVar(&fClickhouseParams, "clickhouse-params", "enable_http_compression=false&default_format=JSONEachRow&output_format_json_quote_64bit_integer", "raw string of clickhouse parameters")
 	clickhouseCmd.SetUsageFunc(common.Usage)
 	clickhouseCmd.SetHelpFunc(common.Help)
 
@@ -59,7 +58,7 @@ func RunQueryString(query string) (string, string, error) {
 		return "", "", err
 	}
 	defer tmpFile.Close()
-	url := fmt.Sprintf("%v/?%v&database=iris&query=%v", CHPROXYURL, CHPARAMS, url.QueryEscape(query))
+	url := fmt.Sprintf("%v/?%v&database=iris&query=%v", fClickhouseURL, fClickhouseParams, url.QueryEscape(query))
 	output, err := common.Curl(userpass, true, "POST", url, "--http1.1", "--output", tmpFile.Name())
 	return tmpFile.Name(), string(output), err
 }
@@ -84,6 +83,7 @@ func clickhouseArgs(cmd *cobra.Command, args []string) error {
 func clickhouse(cmd *cobra.Command, args []string) {
 	var tmpFile, output string
 	var err error
+
 	if len(args) > 0 {
 		tmpFile, output, err = runQueryFromFile(args[0])
 	} else {
