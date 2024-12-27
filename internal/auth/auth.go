@@ -242,7 +242,7 @@ func createAccessToken(credentialsFile, accessTokenFile string) error {
 		fmt.Fprintf(os.Stderr, "using IRIS_PASSWORD environment variable\n")
 	}
 
-	url := fmt.Sprintf("%s/jwt/login", common.AuthAPI)
+	url := fmt.Sprintf("%s/jwt/login", common.APIEndpoint(common.AuthAPISuffix))
 	data := fmt.Sprintf("grant_type=&username=%s&password=%s&scope=&client_id=&client_secret=", username, password)
 	jsonData, err := common.Curl("", false, "POST", url,
 		"-H", "Content-Type: application/x-www-form-urlencoded",

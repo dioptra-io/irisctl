@@ -57,9 +57,9 @@ func GetAgentName(uuid string) string {
 func GetAgents(hostname string, printOut bool) ([]byte, error) {
 	var url string
 	if fAgentsTag != "" {
-		url = fmt.Sprintf("%s/?tag=%v&offset=0&limit=200", common.AgentsAPI, fAgentsTag)
+		url = fmt.Sprintf("%s/?tag=%v&offset=0&limit=200", common.APIEndpoint(common.AgentsAPISuffix), fAgentsTag)
 	} else {
-		url = fmt.Sprintf("%s/?&offset=0&limit=200", common.AgentsAPI)
+		url = fmt.Sprintf("%s/?&offset=0&limit=200", common.APIEndpoint(common.AgentsAPISuffix))
 	}
 	return getResults(url, hostname, printOut)
 }
@@ -102,7 +102,7 @@ func agents(cmd *cobra.Command, args []string) {
 }
 
 func getAgentByUUID(uuid string) error {
-	url := fmt.Sprintf("%s/%s", common.AgentsAPI, uuid)
+	url := fmt.Sprintf("%s/%s", common.APIEndpoint(common.AgentsAPISuffix), uuid)
 	_, err := getResults(url, "", true)
 	return err
 }

@@ -37,6 +37,7 @@ var (
 	fRootStdout      bool
 	fRootVerbose     bool
 	fRootJqFilter    string
+	fIrisAPIUrl      string
 
 	allCmds = []*cobra.Command{}
 
@@ -63,6 +64,7 @@ func main() {
 	irisctlCmd.PersistentFlags().BoolVarP(&fRootStdout, "stdout", "o", false, "print results to stdout instead of saving to a file")
 	irisctlCmd.PersistentFlags().BoolVarP(&fRootVerbose, "verbose", "v", false, "enable verbose mode (more output)")
 	irisctlCmd.PersistentFlags().StringVarP(&fRootJqFilter, "jq-filter", "j", ".", "jq filter")
+	irisctlCmd.PersistentFlags().StringVarP(&fIrisAPIUrl, "iris-api-url", "u", "https://api.iris.dioptra.io", "specify the iris api url")
 	irisctlCmd.SetUsageFunc(common.Usage)
 	irisctlCmd.SetHelpFunc(common.Help)
 
@@ -90,6 +92,7 @@ func main() {
 	_ = viper.BindPFlag("stdout", irisctlCmd.PersistentFlags().Lookup("stdout"))
 	_ = viper.BindPFlag("verbose", irisctlCmd.PersistentFlags().Lookup("verbose"))
 	_ = viper.BindPFlag("jq-filter", irisctlCmd.PersistentFlags().Lookup("jq-filter"))
+	_ = viper.BindPFlag("iris-api-url", irisctlCmd.PersistentFlags().Lookup("iris-api-url"))
 	// Iris API commands.
 	allCmds = append(allCmds, auth.AuthCmd())
 	allCmds = append(allCmds, users.UsersCmd())

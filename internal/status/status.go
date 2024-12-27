@@ -51,7 +51,7 @@ func statusArgs(cmd *cobra.Command, args []string) error {
 }
 
 func status(cmd *cobra.Command, args []string) {
-	if _, err := getResults(common.StatusAPI, true); err != nil {
+	if _, err := getResults(common.APIEndpoint(common.StatusAPISuffix), true); err != nil {
 		fatal(err)
 	}
 }
