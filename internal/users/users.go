@@ -120,7 +120,7 @@ func UsersCmd() *cobra.Command {
 //	newly created username and password.
 func GetUserPass() (string, error) {
 	if meServices.ClickHouse.Username == "" {
-		uuid := "a75482d1-8c5c-4d56-845e-fc3861047992" // zeph-gcp-daily.json
+		uuid := common.RootFlagString("measurement-uuid") // it is slightly better than hardcoding the measurement but for now it's adequate
 		url := fmt.Sprintf("%s/me/services?measurement_uuid=%v", common.APIEndpoint(common.UsersAPISuffix), uuid)
 		jsonData, err := common.Curl(auth.GetAccessToken(), false, "GET", url)
 		if err != nil {
