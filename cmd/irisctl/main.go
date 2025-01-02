@@ -66,6 +66,7 @@ func main() {
 	irisctlCmd.PersistentFlags().BoolVarP(&fRootVerbose, "verbose", "v", false, "enable verbose mode (more output)")
 	irisctlCmd.PersistentFlags().StringVarP(&fRootJqFilter, "jq-filter", "j", ".", "jq filter")
 	irisctlCmd.PersistentFlags().StringVarP(&fIrisAPIUrl, "iris-api-url", "u", "https://api.iris.dioptra.io", "specify the iris api url")
+    // XXX Instead of hard-coding a default value, we should find a measurement UUID of the user.
 	irisctlCmd.PersistentFlags().StringVarP(&fMeasurementUUID, "meas-uuid", "m", "a75482d1-8c5c-4d56-845e-fc3861047992", "specify the measurement uuid for the gusethosue credentials")
 	irisctlCmd.SetUsageFunc(common.Usage)
 	irisctlCmd.SetHelpFunc(common.Help)
