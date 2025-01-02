@@ -66,7 +66,7 @@ func main() {
 	irisctlCmd.PersistentFlags().BoolVarP(&fRootVerbose, "verbose", "v", false, "enable verbose mode (more output)")
 	irisctlCmd.PersistentFlags().StringVarP(&fRootJqFilter, "jq-filter", "j", ".", "jq filter")
 	irisctlCmd.PersistentFlags().StringVarP(&fIrisAPIUrl, "iris-api-url", "u", "https://api.iris.dioptra.io", "specify the iris api url")
-	irisctlCmd.PersistentFlags().StringVarP(&fMeasurementUUID, "measurement-uuid", "m", "a75482d1-8c5c-4d56-845e-fc3861047992", "specify the measurement uuid for the gusethosue credentials")
+	irisctlCmd.PersistentFlags().StringVarP(&fMeasurementUUID, "meas-uuid", "m", "a75482d1-8c5c-4d56-845e-fc3861047992", "specify the measurement uuid for the gusethosue credentials")
 	irisctlCmd.SetUsageFunc(common.Usage)
 	irisctlCmd.SetHelpFunc(common.Help)
 
@@ -95,7 +95,7 @@ func main() {
 	_ = viper.BindPFlag("verbose", irisctlCmd.PersistentFlags().Lookup("verbose"))
 	_ = viper.BindPFlag("jq-filter", irisctlCmd.PersistentFlags().Lookup("jq-filter"))
 	_ = viper.BindPFlag("iris-api-url", irisctlCmd.PersistentFlags().Lookup("iris-api-url"))
-	_ = viper.BindPFlag("measurement-uuid", irisctlCmd.PersistentFlags().Lookup("measurement-uuid"))
+	_ = viper.BindPFlag("meas-uuid", irisctlCmd.PersistentFlags().Lookup("meas-uuid"))
 	// Iris API commands.
 	allCmds = append(allCmds, auth.AuthCmd())
 	allCmds = append(allCmds, users.UsersCmd())

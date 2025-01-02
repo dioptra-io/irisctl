@@ -108,11 +108,10 @@ func UsersCmd() *cobra.Command {
 // GetUserPass returns username and password obtained from
 // users/me/services of Iris API.
 //
-// XXX For now, this function uses a hard-coded measurement UUID
+// XXX For now, this function receives the measurement UUID from flags
 //
-//	but going forward it should either accept a measurement UUID
-//	or find a measurement UUID of the user running this instance
-//	of irisctl.
+//	but going forward it might use find a measurement UUID of the user
+//	running this instance of irisctl.
 //
 // XXX We wait one second before returning because we have noticed that
 //
@@ -120,7 +119,7 @@ func UsersCmd() *cobra.Command {
 //	newly created username and password.
 func GetUserPass() (string, error) {
 	if meServices.ClickHouse.Username == "" {
-		uuid := common.RootFlagString("measurement-uuid") // it is slightly better than hardcoding the measurement but for now it's adequate
+		uuid := common.RootFlagString("meas-uuid") // it is slightly better than hardcoding the measurement but for now it's adequate
 		url := fmt.Sprintf("%s/me/services?measurement_uuid=%v", common.APIEndpoint(common.UsersAPISuffix), uuid)
 		jsonData, err := common.Curl(auth.GetAccessToken(), false, "GET", url)
 		if err != nil {
