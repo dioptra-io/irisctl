@@ -97,7 +97,7 @@ func GetMeasMdFile(allUsers bool) (string, error) {
 func GetMeasurementAllDetails(uuid string) (common.Measurement, error) {
 	var measurement common.Measurement
 
-	url := fmt.Sprintf("%s/%s", common.MeasurementsAPI, uuid)
+	url := fmt.Sprintf("%s/%s", common.APIEndpoint(common.MeasurementsAPISuffix), uuid)
 	jsonData, err := common.Curl(auth.GetAccessToken(), false, "GET", url)
 	if err != nil {
 		return measurement, err
@@ -239,7 +239,7 @@ func measEdit(cmd *cobra.Command, args []string) {
 }
 
 func getTargetList(measUUID, agentUUID string) error {
-	url := fmt.Sprintf("%s/%s/%s/target", common.MeasurementsAPI, measUUID, agentUUID)
+	url := fmt.Sprintf("%s/%s/%s/target", common.APIEndpoint(common.MeasurementsAPISuffix), measUUID, agentUUID)
 	jsonData, err := common.Curl(auth.GetAccessToken(), false, "GET", url)
 	if err != nil {
 		return err
@@ -248,7 +248,7 @@ func getTargetList(measUUID, agentUUID string) error {
 }
 
 func getMeasurementByUUID(uuid string) error {
-	url := fmt.Sprintf("%s/%s", common.MeasurementsAPI, uuid)
+	url := fmt.Sprintf("%s/%s", common.APIEndpoint(common.MeasurementsAPISuffix), uuid)
 	jsonData, err := common.Curl(auth.GetAccessToken(), false, "GET", url)
 	if err != nil {
 		return err
@@ -276,7 +276,7 @@ func getMeasMdFile() (string, error) {
 	defer fmt.Println()
 	for offset := 0; offset < 10000; offset += limit {
 		verbose("getting from offset %d to %d\r", offset, offset+limit)
-		url := common.MeasurementsAPI
+		url := common.APIEndpoint(common.MeasurementsAPISuffix)
 		if fMeasPublic {
 			url = fmt.Sprintf("%s/public?", url)
 		} else {
@@ -313,7 +313,7 @@ func postMeasurementRequst(measFile string) error {
 }
 
 func deleteMeasurement(measUUID string) error {
-	url := fmt.Sprintf("%s/%s", common.MeasurementsAPI, measUUID)
+	url := fmt.Sprintf("%s/%s", common.APIEndpoint(common.MeasurementsAPISuffix), measUUID)
 	jsonData, err := common.Curl(auth.GetAccessToken(), false, "DELETE", url)
 	if err != nil {
 		return err

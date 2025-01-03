@@ -184,17 +184,17 @@ func targetsDelete(cmd *cobra.Command, args []string) {
 }
 
 func getAll() ([]byte, error) {
-	url := fmt.Sprintf("%s/?&offset=0&limit=200", common.TargetsAPI)
+	url := fmt.Sprintf("%s/?&offset=0&limit=200", common.APIEndpoint(common.TargetsAPISuffix))
 	return getResults(url, true)
 }
 
 func getByKey(key string) ([]byte, error) {
-	url := fmt.Sprintf("%s/%s?with_content=%v", common.TargetsAPI, key, fKeyWithContent)
+	url := fmt.Sprintf("%s/%s?with_content=%v", common.APIEndpoint(common.TargetsAPISuffix), key, fKeyWithContent)
 	return getResults(url, true)
 }
 
 func postList(file string) error {
-	url := fmt.Sprintf("%v/", common.TargetsAPI)
+	url := fmt.Sprintf("%v/", common.APIEndpoint(common.TargetsAPISuffix))
 	if fUploadProbe {
 		url = url + "/probes/"
 	}
