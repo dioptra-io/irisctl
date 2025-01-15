@@ -28,4 +28,5 @@ $ ./irisctl -h
 for your password (unless the `IRIS_PASSWORD` environment variable
 is set to your password).
 
-There are usage examples in `COOKBOOK.txt`.
+There are usage examples in `COOKBOOK.txt`.  If you would like to
+contribute code, please follow the conventions in `DEV.md`.
