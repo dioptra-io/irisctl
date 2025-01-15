@@ -778,7 +778,7 @@ func measDuration(measurement common.Measurement) int {
 	}
 	durationCS = append(durationCS, float64(s.Sub(c).Seconds()))
 	durationSE = append(durationSE, float64(e.Sub(s).Seconds()))
-	expectedDuration := []time.Duration{5, 24} // XXX Provide command line flags to specify these
+	expectedDuration := []time.Duration{5, 24} // TODO: Provide command line flags to specify these
 	for i, t := range []string{"zeph-gcp-daily.json", "collection:exhaustive"} {
 		if common.MatchTag(measurement.Tags, []string{t}, fAnalyzeTagsAnd) && e.Sub(s) > expectedDuration[i]*time.Hour {
 			return DurationTooLong

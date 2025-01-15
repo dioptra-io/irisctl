@@ -106,7 +106,7 @@ func listArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// XXX This function is pretty ugly and needs to be refactored.
+// TODO: This function is pretty ugly and needs to be refactored.
 func list(cmd *cobra.Command, args []string) {
 	if fListUUID {
 		for _, arg := range args {
@@ -218,8 +218,8 @@ func printMeasDetailsBQ(measurement common.Measurement) {
 	}
 
 	fmt.Printf("%s,", measurement.Tool) // tool
-	// XXX We need to parse the target list to determine ipv4 and ipv6 values.
-	//     This is a dirty hack for now and should be cleaned up.
+	// XXX: We need to parse the target list to determine ipv4 and ipv6 values.
+	//      This is a dirty hack for now and should be cleaned up.
 	ipv4 := false
 	ipv6 := false
 	if len(measurement.Agents) > 0 {

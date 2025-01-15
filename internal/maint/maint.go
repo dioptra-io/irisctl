@@ -15,7 +15,7 @@ import (
 var (
 	// Command, its flags, subcommands, and their flags.
 	//      maint dq <queue-name>...
-	//      maint dq --post <queue-name> [<actor-string>]  (XXX actor-string: watch_measurement_agent)
+	//      maint dq --post <queue-name> [<actor-string>]  (actor-string: watch_measurement_agent)
 	//      maint dq --delete <queue-name> <redis-message-id>
 	//      maint meas delete <meas-uuid>
 	cmdName     = "maint"

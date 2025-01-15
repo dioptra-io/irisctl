@@ -1,11 +1,20 @@
 
 
-`irisctl` is a command line tool to make it easier to work Iris.  It has two main command groups:
+`irisctl` is a command line tool to make it easier for Iris developers
+and users to work Iris.
+
+**IMPORTANT:** Since Iris is not available as a public service at
+this time, `irisctl` unit tests and code coverage are still under
+development.  We will bring `irisctl` up to production-quality
+standards as development continues.
+
+`irisctl` has two main command groups:
+
   - Iris API commands
   - Non-API commands for checking and analyzing Iris data
 
 To build `irisctl` from source, you need the standard developments
-tools (make, git) and also the Go language compiler on your machine.
+tools (`make`, `git`) and also the Go language compiler on your machine.
 ```
 $ cd /to/your/work/directory
 $ git clone https://github.com/dioptra-io/irisctl.git
@@ -20,6 +29,3 @@ for your password (unless the `IRIS_PASSWORD` environment variable
 is set to your password).
 
 There are usage examples in `COOKBOOK.txt`.
-
-Please note that `irisctl` is work-in-progress and currently does
-not meet production-quality requirements (e.g., it lacks unit tests).
