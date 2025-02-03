@@ -108,20 +108,13 @@ func UsersCmd() *cobra.Command {
 // GetUserPass returns username and password obtained from
 // users/me/services of Iris API.
 //
-// XXX For now, this function uses a hard-coded measurement UUID
-//
-//	but going forward it should either accept a measurement UUID
-//	or find a measurement UUID of the user running this instance
-//	of irisctl.
-//
-// XXX We wait one second before returning because we have noticed that
-//
-//	sometimes Iris hasn't fully read the user file that includes the
-//	newly created username and password.
+// TODO: For now, this function receives the measurement UUID from
+//       flags but going forward it might find a measurement UUID of
+//       the user running this instance of irisctl.
 func GetUserPass() (string, error) {
 	if meServices.ClickHouse.Username == "" {
-		uuid := "a75482d1-8c5c-4d56-845e-fc3861047992" // zeph-gcp-daily.json
-		url := fmt.Sprintf("%s/me/services?measurement_uuid=%v", common.UsersAPI, uuid)
+		uuid := common.RootFlagString("meas-uuid")
+		url := fmt.Sprintf("%s/me/services?measurement_uuid=%v", common.APIEndpoint(common.UsersAPISuffix), uuid)
 		jsonData, err := common.Curl(auth.GetAccessToken(), false, "GET", url)
 		if err != nil {
 			return "", err
@@ -130,6 +123,9 @@ func GetUserPass() (string, error) {
 			return "", err
 		}
 	}
+	// We wait one second before returning because we have noticed that
+	// sometimes Iris hasn't fully read the user file that includes the
+	// newly created username and password.
 	time.Sleep(1 * time.Second)
 	return meServices.ClickHouse.Username + ":" + meServices.ClickHouse.Password, nil
 }
@@ -243,24 +239,24 @@ func usersServicesArgs(cmd *cobra.Command, args []string) error {
 
 func usersMeServices(cmd *cobra.Command, args []string) {
 	uuid := args[0]
-	url := fmt.Sprintf("%s/me/services?measurement_uuid=%v", common.UsersAPI, uuid)
+	url := fmt.Sprintf("%s/me/services?measurement_uuid=%v", common.APIEndpoint(common.UsersAPISuffix), uuid)
 	if _, err := common.Curl(auth.GetAccessToken(), false, "GET", url); err != nil {
 		fatal(err)
 	}
 }
 
 func getUsersMe(printOut bool) ([]byte, error) {
-	url := fmt.Sprintf("%s/me", common.UsersAPI)
+	url := fmt.Sprintf("%s/me", common.APIEndpoint(common.UsersAPISuffix))
 	return getUsers(url, printOut)
 }
 
 func getUsersAll(printOut bool) ([]byte, error) {
-	url := fmt.Sprintf("%s?filter_verified=%v&offset=0&limit=200", common.UsersAPI, fAllVerified)
+	url := fmt.Sprintf("%s?filter_verified=%v&offset=0&limit=200", common.APIEndpoint(common.UsersAPISuffix), fAllVerified)
 	return getUsers(url, printOut)
 }
 
 func deleteUsersById(userId string) error {
-	url := fmt.Sprintf("%s/%v", common.UsersAPI, userId)
+	url := fmt.Sprintf("%s/%v", common.APIEndpoint(common.UsersAPISuffix), userId)
 	jsonData, err := common.Curl(auth.GetAccessToken(), false, "DELETE", url)
 	if err != nil {
 		fmt.Println(string(jsonData))

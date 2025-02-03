@@ -21,14 +21,13 @@ import (
 )
 
 const (
-	IrisAPI         = "https://api.iris.dioptra.io"
-	AuthAPI         = IrisAPI + "/auth"
-	UsersAPI        = IrisAPI + "/users"
-	AgentsAPI       = IrisAPI + "/agents"
-	TargetsAPI      = IrisAPI + "/targets"
-	MeasurementsAPI = IrisAPI + "/measurements"
-	StatusAPI       = IrisAPI + "/status"
-	MaintenanceAPI  = IrisAPI + "/maintenance"
+	AuthAPISuffix         = "/auth"
+	UsersAPISuffix        = "/users"
+	AgentsAPISuffix       = "/agents"
+	TargetsAPISuffix      = "/targets"
+	MeasurementsAPISuffix = "/measurements"
+	StatusAPISuffix       = "/status"
+	MaintenanceAPISuffix  = "/maintenance"
 
 	UserID          = "user ID"
 	MeasurementUUID = "measurement UUID"
@@ -338,6 +337,10 @@ func RootFlagBool(flag string) bool {
 
 func RootFlagString(flag string) string {
 	return viper.GetString(flag)
+}
+
+func APIEndpoint(endpoint string) string {
+	return RootFlagString("iris-api-url") + endpoint
 }
 
 func CliFatal(args ...interface{}) {

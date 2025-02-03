@@ -1,4 +1,4 @@
-IRIS COOKBOOK
+IRISCTL COOKBOOK
 
 1. Analyze Command (irisctl analyze)
    1.1. Measurements

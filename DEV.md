@@ -1,51 +1,5 @@
-# CLI
-
-irisctl [--brief] [--curl] [--no-delete] [--no-auto-login] [--verbose] <command>
-
-agents [--tag]
-agents [<agent>...]
-
-analyze [--before] [--after] [--state <state>] [--tag <tag>] [--tags-and] [--links-file <file>]
-analyze hours [--chart]
-analyze tags
-analyze states
-
-auth <subcommand>
-auth login [--cookie]
-auth logout [--cookie]
-auth register <user-details>...
-
-check <subcommand>
-check agents [--uptime] [--net]
-check containers [--errors] [--logs]
-
-maint <subcommand>
-maint dq <queue-name>...
-maint dq --upload <queue-name> <actor-string>
-maint dq --delete <queue-name> <redis-message-id>
-maint delete <meas-uuid>
-
-meas [--state <state>] [--tag <tag>] [--all] [--public]
-meas --uuid <meas-uuid>...
-meas --target-list <meas-uuid> <agent-uuid>
-meas request <meas-md-file>...
-meas delete <meas-uuid>...
-meas edit <meas-uuid> <meas-md-file>
-
-status (has no flags)
-
-targets <subcommand>
-targets all
-targets [--with-conent] key <key>...
-targets upload [--probe] <file>
-targets delete <key>
-
-users <subcommand>
-users me
-users all [--verified]
-users delete [--dry-run] <user-id>...
-users patch <user-id> <user-details>
-users services <meas-uuid>
+The source code for `irisctl` follows specific conventions.
+If you'd like to contribute, please adhere to these guidelines. 
 
 # Naming Conventions
 
@@ -58,7 +12,7 @@ users services <meas-uuid>
 	f<subcmd><flag> // irisctl monitor agents --status => fAgentStatus
 
 
-## cobra.Command Initialization
+# cobra.Command Initialization
 
 ## Usage() and Help() functions should be set where the command is defined.  For example:
 
@@ -86,6 +40,10 @@ users services <meas-uuid>
 		return nil
 	}
 
-## Fatal Functions
-- cliFatal()
-- fatal()
+# Fatal Functions
+	cliFatal() // invalid command line
+	fatal() // errors that should terminate execution
+
+# Annotations
+	// TODO: mark incomplete work or improvements to be made
+	// XXX: mark hacky code that needs a better solution but is left as-is for now

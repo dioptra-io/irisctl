@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	//"github.com/dioptra-io/irisctl/internal/auth"
@@ -106,7 +105,7 @@ func listArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// XXX This function is pretty ugly and needs to be refactored.
+// TODO: This function is pretty ugly and needs to be refactored.
 func list(cmd *cobra.Command, args []string) {
 	if fListUUID {
 		for _, arg := range args {
@@ -197,13 +196,9 @@ func printMeasDetailsBQ(measurement common.Measurement) {
 	s := time.Time(measurement.StartTime.Time)
 	fmt.Printf("%s,", s.Format("2006-01-02 15:04:05")) // start_time
 	e := time.Time(measurement.EndTime.Time)
-	fmt.Printf("%s,", e.Sub(s).Round(time.Second)) // duration
+	fmt.Printf("%s,", e.Format("2006-01-02 15:04:05")) // end_time
 
-	a, ok := abbrState[measurement.State]
-	if !ok {
-		panic("internal error: invalid measurement state")
-	}
-	fmt.Printf("%s,", a) // state
+	fmt.Printf("%s,", measurement.State) // state
 
 	fmt.Printf("%d,", len(measurement.Agents)) // agents_num
 	agents_finished := 0
@@ -212,39 +207,7 @@ func printMeasDetailsBQ(measurement common.Measurement) {
 			agents_finished++
 		}
 	}
-	fmt.Printf("%d,", agents_finished) // agents_finished
-	if len(measurement.Agents) > 0 {
-		fmt.Printf("%s,", measurement.Agents[0].AgentParameters.Version) // agents_version
-	}
-
-	fmt.Printf("%s,", measurement.Tool) // tool
-	// XXX We need to parse the target list to determine ipv4 and ipv6 values.
-	//     This is a dirty hack for now and should be cleaned up.
-	ipv4 := false
-	ipv6 := false
-	if len(measurement.Agents) > 0 {
-		t := measurement.Agents[0].TargetFile
-		if strings.Contains(t, "zeph") || strings.Contains(t, "exhaustive") {
-			ipv4 = true
-		}
-		if strings.Contains(t, "ipv6") {
-			ipv6 = true
-		}
-	}
-	if ipv4 {
-		fmt.Printf("%v,", ipv4) // ipv4
-	} else {
-		fmt.Printf(",")
-	}
-	if ipv6 {
-		fmt.Printf("%v,", ipv6) // ipv6
-	} else {
-		fmt.Printf(",")
-	}
-
-	fmt.Printf("false,") // is_published
-
-	fmt.Printf("%s\n", strings.Join(measurement.Tags, " ")) // tags
+	fmt.Printf("%d\n", agents_finished) // agents_finished
 }
 
 func validateFlags() {

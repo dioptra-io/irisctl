@@ -15,7 +15,7 @@ import (
 var (
 	// Command, its flags, subcommands, and their flags.
 	//      maint dq <queue-name>...
-	//      maint dq --post <queue-name> [<actor-string>]  (XXX actor-string: watch_measurement_agent)
+	//      maint dq --post <queue-name> [<actor-string>]  (actor-string: watch_measurement_agent)
 	//      maint dq --delete <queue-name> <redis-message-id>
 	//      maint meas delete <meas-uuid>
 	cmdName     = "maint"
@@ -173,7 +173,7 @@ func deleteMaintenanceMeas(measUUID string) error {
 	defer f.Close()
 	fmt.Fprintf(os.Stderr, "saving in %s\n", f.Name())
 
-	url := fmt.Sprintf("%s/measurements/%s", common.MaintenanceAPI, measUUID)
+	url := fmt.Sprintf("%s/measurements/%s", common.APIEndpoint((common.MaintenanceAPISuffix)), measUUID)
 	jsonData, err := common.Curl(auth.GetAccessToken(), false, "DELETE", url)
 	if err != nil {
 		return err
