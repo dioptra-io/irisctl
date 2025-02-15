@@ -4,13 +4,16 @@ package meas
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"regexp"
 
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
 	"github.com/dioptra-io/irisctl/internal/auth"
 	"github.com/dioptra-io/irisctl/internal/common"
-	"github.com/spf13/cobra"
 )
 
 var (
@@ -257,20 +260,31 @@ func getMeasurementByUUID(uuid string) error {
 }
 
 func getMeasMdFile() (string, error) {
+	useStandartOut := viper.GetBool("stdout")
+
 	var prefix string
-	if fMeasAllUsers {
-		verbose("getting metadata of all measurements\n")
-		prefix = "irisctl-meas-all-"
+	var f io.Writer
+	var fileName string
+	if !useStandartOut {
+		if fMeasAllUsers {
+			verbose("getting metadata of all measurements\n")
+			prefix = "irisctl-meas-all-"
+		} else {
+			verbose("getting metadata of my measurements\n")
+			prefix = "irisctl-meas-me-"
+		}
+		file, err := os.CreateTemp("/tmp", prefix)
+		if err != nil {
+			return "", err
+		}
+		defer file.Close()
+		fileName = file.Name()
+		fmt.Fprintf(os.Stderr, "saving in %s\n", fileName)
+		f = file
 	} else {
-		verbose("getting metadata of my measurements\n")
-		prefix = "irisctl-meas-me-"
+		f = os.Stdout
+		fileName = ""
 	}
-	f, err := os.CreateTemp("/tmp", prefix)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-	fmt.Fprintf(os.Stderr, "saving in %s\n", f.Name())
 
 	limit := 200
 	defer fmt.Println()
@@ -291,20 +305,20 @@ func getMeasMdFile() (string, error) {
 		url = fmt.Sprintf("%soffset=%d&limit=%d", url, offset, limit)
 		jsonData, err := common.Curl(auth.GetAccessToken(), false, "GET", url)
 		if err != nil {
-			return f.Name(), err
+			return fileName, err
 		}
 		if _, err := f.Write(jsonData); err != nil {
-			return f.Name(), err
+			return fileName, err
 		}
 		var batch common.MeasurementBatch
 		if err := json.Unmarshal(jsonData, &batch); err != nil {
-			return f.Name(), err
+			return fileName, err
 		}
 		if batch.Next == nil || *batch.Next == "" {
 			break
 		}
 	}
-	return f.Name(), nil
+	return fileName, nil
 }
 
 func postMeasurementRequst(measFile string) error {
