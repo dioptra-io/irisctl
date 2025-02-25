@@ -33,7 +33,7 @@ The scope of analysis can be adjusted to a particular set of of
 measurements with command line flags and arguments.  Below is the
 general invocation:
 
-    analyze [--all-users] [--before <yyyy-mm-dd>] [--after <yyyy-mm-dd>] \
+    analyze [--all-users] [--before <yyyy-mm-ddThh:mm:ss>] [--after <yyyy-mm-ddThh:mm:ss>] \
             [--state <state>]... [--tag <tag>]... [--tags-and] \
             [--agent <agent-hostname>]...
 

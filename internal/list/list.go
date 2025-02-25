@@ -15,13 +15,13 @@ import (
 )
 
 const (
-	FirstMeasurementDate = "2020-01-01"
-	LastMeasurementDate  = "2040-01-01" // distant future
+	FirstMeasurementDate = "2020-01-01T00:00:00.000"
+	LastMeasurementDate  = "2040-01-01T00:00:00.000" // distant future
 )
 
 var (
 	// Command, its flags, subcommands, and their flags.
-	//      list [--bq] [--all-users] [--before <yyyy-mm-dd>] [--after <yyyy-mm-dd>] [--state <state>]... [--tag <tag>]... [--tags-and] \
+	//      list [--bq] [--all-users] [--before <yyyy-mm-ddThh:mm:ss>] [--after <yyyy-mm-ddThh:mm:ss>] [--state <state>]... [--tag <tag>]... [--tags-and] \
 	//		[--agent <agent-hostname>...] [<meas-md-file>]
 	//      list [--bq] --uuid <meas_uuid>...
 	cmdName       = "list"

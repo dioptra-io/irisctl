@@ -297,7 +297,7 @@ var (
 
 // Set implements the pflag.Value interface Set method.
 func (c *CustomTime) Set(value string) error {
-	parsedTime, err := time.Parse("2006-01-02", value)
+	parsedTime, err := time.Parse("2006-01-02T15:04:05.999999", value)
 	if err != nil {
 		return err
 	}
