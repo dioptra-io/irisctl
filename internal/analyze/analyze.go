@@ -20,8 +20,8 @@ import (
 )
 
 const (
-	FirstMeasurementDate = "2020-01-01"
-	LastMeasurementDate  = "2040-01-01" // distant future
+	FirstMeasurementDate = "2020-01-01T00:00:00.000"
+	LastMeasurementDate  = "2040-01-01T00:00:00.000" // distant future
 
 	DurationNone    = 1
 	DurationTooLong = 2
@@ -36,7 +36,7 @@ type tableDetails struct {
 
 var (
 	// Command, its flags, subcommands, and their flags.
-	//      analyze [--all-users] [--before <yyyy-mm-dd>] [--after <yyyy-mm-dd>] [--state <state>]... [--tag <tag>]... [--tags-and] [--agent <agent-hostname>]...
+	//      analyze [--all-users] [--before <yyyy-mm-ddThh:mm:ss>] [--after <yyyy-mm-ddThh:mm:ss>] [--state <state>]... [--tag <tag>]... [--tags-and] [--agent <agent-hostname>]...
 	//      analyze hours [--chart]
 	//      analyze tags
 	//      analyze states
