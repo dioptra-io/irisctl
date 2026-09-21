@@ -58,6 +58,7 @@ func RunQueryString(query string) (string, string, error) {
 		return "", "", err
 	}
 	defer tmpFile.Close()
+	defer os.Remove(tmpFile.Name())
 	url := fmt.Sprintf("%v/?%v&database=iris&query=%v", fClickhouseURL, fClickhouseParams, url.QueryEscape(query))
 	output, err := common.Curl(userpass, true, "POST", url, "--http1.1", "--output", tmpFile.Name())
 	return tmpFile.Name(), string(output), err
