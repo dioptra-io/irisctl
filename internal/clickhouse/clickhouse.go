@@ -58,7 +58,6 @@ func RunQueryString(query string) (string, string, error) {
 		return "", "", err
 	}
 	defer tmpFile.Close()
-	defer os.Remove(tmpFile.Name())
 	url := fmt.Sprintf("%v/?%v&database=iris&query=%v", fClickhouseURL, fClickhouseParams, url.QueryEscape(query))
 	output, err := common.Curl(userpass, true, "POST", url, "--http1.1", "--output", tmpFile.Name())
 	return tmpFile.Name(), string(output), err
@@ -84,7 +83,6 @@ func clickhouseArgs(cmd *cobra.Command, args []string) error {
 func clickhouse(cmd *cobra.Command, args []string) {
 	var tmpFile, output string
 	var err error
-
 	if len(args) > 0 {
 		tmpFile, output, err = runQueryFromFile(args[0])
 	} else {
@@ -94,6 +92,7 @@ func clickhouse(cmd *cobra.Command, args []string) {
 		fmt.Printf("%v\n", output)
 		fatal(err)
 	}
+	defer os.Remove(tmpFile)
 	content, err := os.ReadFile(tmpFile)
 	if err != nil {
 		fatal(err)
